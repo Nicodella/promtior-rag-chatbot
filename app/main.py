@@ -1,10 +1,14 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()  # Cargar .env ANTES de importar el resto (para que OPENAI_API_KEY esté disponible)
+
+# LangChain usa USER_AGENT para identificar requests; evita el warning de langchain_community
+os.environ.setdefault("USER_AGENT", "PromtiorRAG/1.0")
+
 from fastapi import FastAPI
 from langserve import add_routes
 
 from app.rag_chain import create_rag_chain
-
-#from dotenv import load_dotenv
-#load_dotenv()
 
 #crear la app web
 app = FastAPI(
