@@ -3,6 +3,8 @@ from langserve import add_routes
 
 from app.rag_chain import create_rag_chain
 
+#from dotenv import load_dotenv
+#load_dotenv()
 
 #crear la app web
 app = FastAPI(
