@@ -19,3 +19,6 @@ Thumbs.db
 # Configuración de IDE
 .vscode/
 .idea/
+
+# Variables de entorno
+.env
