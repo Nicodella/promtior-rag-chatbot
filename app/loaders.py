@@ -1,5 +1,6 @@
 import os
 import warnings
+import concurrent.futures
 from langchain_community.document_loaders import (
     WebBaseLoader,
     PyPDFLoader,
@@ -76,8 +77,23 @@ def load_documents():
     """
     docs = []
 
-    # 1) Web: intentar Playwright primero (necesario para promtior.ai)
-    web_docs = _load_web_playwright(PROMTIOR_URLS)
+    # En Railway no hay Chromium; usar solo fallback evita el warning de Playwright
+    skip_playwright = os.environ.get("RAILWAY") or os.environ.get("DISABLE_PLAYWRIGHT")
+    if not skip_playwright:
+        try:
+            import asyncio
+            asyncio.get_running_loop()
+            in_async = True
+        except RuntimeError:
+            in_async = False
+        if in_async:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                f = pool.submit(_load_web_playwright, PROMTIOR_URLS)
+                web_docs = f.result(timeout=60)
+        else:
+            web_docs = _load_web_playwright(PROMTIOR_URLS)
+    else:
+        web_docs = None
     if web_docs:
         docs.extend(web_docs)
     else:
