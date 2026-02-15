@@ -9,7 +9,7 @@ from langchain_community.document_loaders import (
 from langchain_core.documents import Document
 from bs4 import BeautifulSoup
 
-# URLs de Promtior (sitio con JavaScript; hace falta Playwright para ver el contenido real)
+# URLs de Promtior
 PROMTIOR_URLS = [
     "https://promtior.ai/",
     "https://www.promtior.ai/service",
@@ -22,8 +22,7 @@ WEB_HEADERS = {
 
 def _load_web_playwright(urls):
     """
-    Carga páginas con Playwright en modo SÍNCRONO (sync_playwright).
-    Evita 'asyncio.run() cannot be called from a running event loop' con uvicorn.
+    Carga páginas con Playwright (sync_playwright). 
     """
     try:
         from playwright.sync_api import sync_playwright
@@ -55,7 +54,6 @@ def _load_web_playwright(urls):
 
 
 def _load_web_fallback(urls):
-    """Fallback sin JavaScript (puede devolver poco contenido en sitios SPA)."""
     docs = []
     for url in urls:
         try:
@@ -72,12 +70,12 @@ def _load_web_fallback(urls):
 
 def load_documents():
     """
-    Carga documentos desde la web de Promtior (con Playwright si está instalado)
+    Carga documentos desde la web de Promtior (con Playwright)
     y PDFs en data/.
     """
     docs = []
 
-    # En Railway no hay Chromium; usar solo fallback evita el warning de Playwright
+    # En Railway no hay Chromium
     skip_playwright = os.environ.get("RAILWAY") or os.environ.get("DISABLE_PLAYWRIGHT")
     if not skip_playwright:
         try:
@@ -99,7 +97,7 @@ def load_documents():
     else:
         docs.extend(_load_web_fallback(PROMTIOR_URLS))
 
-    # 2) PDFs (si existe la carpeta data/)
+    # 2) PDFs (data/)
     if os.path.isdir("data"):
         try:
             pdf_loader = DirectoryLoader(
